@@ -144,14 +144,4 @@ public class VliegtuigTest {
 		}
 	}
 
-//	@Test
-//	public void test_t(){
-//		Calendar datum = Calendar.getInstance();
-//		datum.set(2020, 01, 01);
-//		Vliegtuig vliegtuig = new Vliegtuig(lvm, vtt1, "Fokke", datum);
-//		Vlucht vlucht = new Vlucht();
-//		vlucht.zetVertrekpunt();
-//
-//	}
-
 }
