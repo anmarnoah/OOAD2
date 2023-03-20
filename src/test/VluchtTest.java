@@ -97,9 +97,8 @@ public class VluchtTest {
 	public void testAankomstTijdMagNietLaterZijnDanVertrekTijd_False() {
 		Vlucht vlucht = new Vlucht();
 		Calendar vertr = Calendar.getInstance();
-		vertr.set(2020, 03, 30, 14, 15, 0);
+		vertr.add(Calendar.MINUTE, +1);
 		Calendar aank = Calendar.getInstance();
-		aank.set(2019, 03, 30, 15, 15, 0);
 		try {
 			vlucht.zetVertrekTijd(vertr);
 			vlucht.zetAankomstTijd(aank);
@@ -116,14 +115,14 @@ public class VluchtTest {
 	@Test
 	public void testAankomstTijdMagNietLaterZijnDanVertrekTijd_True() {
 		Vlucht vlucht = new Vlucht();
+		Vlucht vlucht1 = new Vlucht();
+
 		Calendar vertr = Calendar.getInstance();
-		vertr.set(2020, 03, 30, 14, 15, 0);
 		Calendar aank = Calendar.getInstance();
-		aank.set(2020, 03, 30, 15, 15, 0);
+		aank.add(Calendar.MINUTE, +1);
 		try {
 			vlucht.zetVertrekTijd(vertr);
 			vlucht.zetAankomstTijd(aank);
-			// Hier hoort een exception te komen
 			Calendar aankomst = vlucht.getAankomstTijd();
 			assertFalse(aankomst == null);
 		}
@@ -133,5 +132,131 @@ public class VluchtTest {
 		}
 	}
 
+
+	/**
+	 * Business rule:
+	 * Een vliegtuig kan maar voor één vlucht tegelijk gebruikt worden.
+	 */
+
+	@Test
+	public void testVertrekTijdMagNietOverlappen_False_AankomstTijdMagNietOverlappen_True() {
+		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		Land l1 = new Land("Nederland", 31);
+		Land l2 = new Land("Frankrijk", 32);
+		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
+		lh2 = new Luchthaven("Charles de Gaule", "TEG", true, l2);
+		Calendar vertr1 = Calendar.getInstance();
+		vertr1.set(2025 , 07, 01, 12, 43, 0);
+		Calendar aank1 = Calendar.getInstance();
+		aank1.set(2025 , 07, 01, 15, 36, 0);
+		Vlucht vlucht = new Vlucht(vt1, lh1, lh2, vertr1, aank1);
+
+
+		Calendar vertr2 = Calendar.getInstance();
+		vertr2.set(2025 , 07, 01, 15, 35, 0);
+		Calendar aank2 = Calendar.getInstance();
+		aank2.set(2025 , 07, 01, 16, 36, 0);
+		try {
+			vlucht.zetVertrekTijd(vertr2); // Hier moet een Exception komen
+			vlucht.zetAankomstTijd(aank2);
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertFalse(vertrekTijd.equals(vertr2));
+		}
+		catch(VluchtException e) {
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertFalse(vertrekTijd.equals(vertr2));
+		}
+	}
+
+	@Test
+	public void testVertrekTijdMagNietOverlappen_True_AankomstTijdMagNietOverlappen_False() {
+		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		Land l1 = new Land("Nederland", 31);
+		Land l2 = new Land("Frankrijk", 32);
+		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
+		lh2 = new Luchthaven("Charles de Gaule", "TEG", true, l2);
+		Calendar vertr1 = Calendar.getInstance();
+		vertr1.set(2025 , 07, 01, 12, 43, 0);
+		Calendar aank1 = Calendar.getInstance();
+		aank1.set(2025 , 07, 01, 15, 36, 0);
+		Vlucht vlucht = new Vlucht(vt1, lh1, lh2, vertr1, aank1);
+
+
+		Calendar vertr2 = Calendar.getInstance();
+		vertr2.set(2025 , 07, 01, 11, 36, 0);
+		Calendar aank2 = Calendar.getInstance();
+		aank2.set(2025 , 07, 01, 12, 44, 0);
+
+		try {
+			vlucht.zetVertrekTijd(vertr2);
+			vlucht.zetAankomstTijd(aank2); // Hier zou een exception moeten komen, maar is fout geimplementeerd
+			Calendar aankomstTijd = vlucht.getAankomstTijd();
+			assertFalse(aankomstTijd.equals(aank2));
+		}
+		catch(VluchtException e) {
+			Calendar aankomstTijd = vlucht.getAankomstTijd();
+			assertFalse(aankomstTijd.equals(aank2));
+		}
+	}
+
+	@Test
+	public void testVertrekTijdMagNietOverlappen_False_AankomstTijdMagNietOverlappen_False() {
+		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		Land l1 = new Land("Nederland", 31);
+		Land l2 = new Land("Frankrijk", 32);
+		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
+		lh2 = new Luchthaven("Charles de Gaule", "TEG", true, l2);
+		Calendar vertr1 = Calendar.getInstance();
+		vertr1.set(2025 , 07, 01, 12, 43, 0);
+		Calendar aank1 = Calendar.getInstance();
+		aank1.set(2025 , 07, 01, 15, 36, 0);
+		Vlucht vlucht = new Vlucht(vt1, lh1, lh2, vertr1, aank1);
+
+
+		Calendar vertr2 = Calendar.getInstance();
+		vertr2.set(2025 , 07, 01, 12, 42, 0);
+		Calendar aank2 = Calendar.getInstance();
+		aank2.set(2025 , 07, 01, 15, 37, 0);
+		try {
+			vlucht.zetVertrekTijd(vertr2); // Hier zou een exception moeten komen, maar is fout geimplementeerd
+			vlucht.zetAankomstTijd(aank2);
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertFalse(vertrekTijd.equals(vertr2));
+		}
+		catch(VluchtException e) {
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertFalse(vertrekTijd.equals(vertr2));
+		}
+	}
+
+	@Test
+	public void testVertrekTijdMagNietOverlappen_True_AankomstTijdMagNietOverlappen_True() {
+		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		Land l1 = new Land("Nederland", 31);
+		Land l2 = new Land("Frankrijk", 32);
+		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
+		lh2 = new Luchthaven("Charles de Gaule", "TEG", true, l2);
+		Calendar vertr1 = Calendar.getInstance();
+		vertr1.set(2025 , 07, 01, 12, 43, 0);
+		Calendar aank1 = Calendar.getInstance();
+		aank1.set(2025 , 07, 01, 15, 36, 0);
+		Vlucht vlucht = new Vlucht(vt1, lh1, lh2, vertr1, aank1);
+
+
+		Calendar vertr2 = Calendar.getInstance();
+		vertr2.set(2025 , 07, 01, 15, 37, 0);
+		Calendar aank2 = Calendar.getInstance();
+		aank2.set(2025 , 07, 01, 16, 37, 0);
+		try {
+			vlucht.zetVertrekTijd(vertr2);
+			vlucht.zetAankomstTijd(aank2);
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertTrue(vertrekTijd.equals(vertr2));
+		}
+		catch(VluchtException e) {
+			Calendar vertrekTijd = vlucht.getVertrekTijd();
+			assertTrue(vertrekTijd.equals(vertr2));
+		}
+	}
 
 }
