@@ -143,5 +143,4 @@ public class VliegtuigTest {
 			assertFalse(datumInGebruik == null);
 		}
 	}
-
 }
