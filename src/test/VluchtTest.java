@@ -132,5 +132,5 @@ public class VluchtTest {
 			assertFalse(aankomst == null);
 		}
 	}
-		
+
 }
