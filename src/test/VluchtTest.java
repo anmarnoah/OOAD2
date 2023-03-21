@@ -26,11 +26,11 @@ public class VluchtTest {
 			vtt1 = f1.creeervliegtuigtype("A-200", 140);
 			Calendar datum = Calendar.getInstance();
 			datum.set(2000, 01, 01);
-			vt1 = new Vliegtuig(lvm, vtt1, "Luchtbus 100", datum);
+			vt1 = new Vliegtuig(lvm, vtt1, "Fokke", datum);
 			Land l1 = new Land("Nederland", 31);
-			Land l2 = new Land("België", 32);
+			Land l2 = new Land("Frankrijk", 32);
 			lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
-			lh2 = new Luchthaven("Tegel", "TEG", true, l2);
+			lh2 = new Luchthaven("Bonn", "BON", true, l2);
 			Calendar vertr = Calendar.getInstance();
 			vertr.set(2020, 03, 30, 14, 15, 0);
 			Calendar aank = Calendar.getInstance();
@@ -115,7 +115,6 @@ public class VluchtTest {
 	@Test
 	public void testAankomstTijdMagNietLaterZijnDanVertrekTijd_True() {
 		Vlucht vlucht = new Vlucht();
-		Vlucht vlucht1 = new Vlucht();
 
 		Calendar vertr = Calendar.getInstance();
 		Calendar aank = Calendar.getInstance();
@@ -140,7 +139,7 @@ public class VluchtTest {
 
 	@Test
 	public void testVertrekTijdMagNietOverlappen_False_AankomstTijdMagNietOverlappen_True() {
-		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		// Fokke bezetten met een vlucht van Schiphol - Charles de Gaule
 		Land l1 = new Land("Nederland", 31);
 		Land l2 = new Land("Frankrijk", 32);
 		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
@@ -170,7 +169,7 @@ public class VluchtTest {
 
 	@Test
 	public void testVertrekTijdMagNietOverlappen_True_AankomstTijdMagNietOverlappen_False() {
-		// Fokke bezetten meet een vlucht van Schiphol - Charles de Gaule
+		// Fokke bezetten met een vlucht van Schiphol - Charles de Gaule
 		Land l1 = new Land("Nederland", 31);
 		Land l2 = new Land("Frankrijk", 32);
 		lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
@@ -259,4 +258,154 @@ public class VluchtTest {
 		}
 	}
 
+	/**
+	 * Business rule:
+	 * Een vlucht mag alleen geaccepteerd worden als de volgende gegevens zijn vastgelegd: vliegtuig,
+	 * vertrekpunt, bestemming, vertrektijd, aankomsttijd.
+	 */
+
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_Vliegtuig_False() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+//			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh1);
+			vlucht.zetBestemming(lh2);
+			vlucht.zetVertrekTijd(vertr);
+			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			// Code zou niet verder moeten runnen, hier komt een exception.
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_Vertrekpunt_False() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+			vlucht.zetVliegtuig(vt1);
+//			vlucht.zetVertrekpunt(lh1);
+			vlucht.zetBestemming(lh2);
+			vlucht.zetVertrekTijd(vertr);
+			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			// Hier zou een exception moeten komen maar is niet het geval, wordt niet juist gecheckt in de code of
+			// Het vertrekpunt wel is gezet of niet.
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_Bestemming_False() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh1);
+//			vlucht.zetBestemming(lh2);
+			vlucht.zetVertrekTijd(vertr);
+			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			// Code zou niet verder moeten runnen, hier komt een exception.
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_Vertrektijd_False() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh1);
+			vlucht.zetBestemming(lh2);
+//			vlucht.zetVertrekTijd(vertr);
+			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			// Code zou niet verder moeten runnen, hier komt een exception.
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_AankomstTijd_False() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh1);
+			vlucht.zetBestemming(lh2);
+			vlucht.zetVertrekTijd(vertr);
+//			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			// Code zou niet verder moeten runnen, hier komt een exception.
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertFalse(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
+
+	@Test
+	public void testVluchtMagNietGeaccepteerdWordenBijOnvolledigeGegevens_True() {
+		Vlucht vlucht = new Vlucht();
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		aank.add(Calendar.MINUTE, +1);
+
+		int eersteAantalVluchten = Vlucht.geefAlle().size();
+
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh1);
+			vlucht.zetBestemming(lh2);
+			vlucht.zetVertrekTijd(vertr);
+			vlucht.zetAankomstTijd(aank);
+			vlucht.bewaar();
+			assertTrue(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+		catch (VluchtException e) {
+			assertTrue(Vlucht.geefAlle().size() > eersteAantalVluchten);
+		}
+	}
 }
